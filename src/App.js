@@ -2,6 +2,7 @@ import "./App.css";
 import Form from "./components/Form";
 import TodoList from "./components/TodoList";
 import { useState, useEffect } from "react";
+import store from './localStore';
 
 function App() {
   const [inputText, setInputText] = useState("");
@@ -11,46 +12,40 @@ function App() {
 
   // Run Once when the app start
   useEffect(() => {
-    // console.log("start");
     getLocalTodos();
   }, []);
 
+  const filterHandler = () => {
+    switch (status) {
+      case "completed":
+        setFilteredTodos(todos.filter((todo) => todo.completed));
+        break;
+      case "uncompleted":
+        setFilteredTodos(todos.filter((todo) => !todo.completed));
+        break;
+      default:
+        setFilteredTodos(todos);
+    }
+  };
+
+  // Update filtered list when change on status or todos item
   useEffect(() => {
-    const filterHandler = () => {
-      switch (status) {
-        case "completed":
-          setFilteredTodos(todos.filter((todo) => todo.completed));
-          break;
-        case "uncompleted":
-          setFilteredTodos(todos.filter((todo) => !todo.completed));
-          break;
-        default:
-          setFilteredTodos(todos);
-      }
-    };
-
-    const saveLocalTodos = () => {
-      // console.log("Save");
-      localStorage.setItem("todos", JSON.stringify(todos));
-    };
-
     filterHandler();
-    saveLocalTodos();
-    // console.log("hey");
   }, [todos, status]);
 
   const getLocalTodos = () => {
-    if (localStorage.getItem("todos") === null) {
-      // console.log("Clear");
-      localStorage.setItem("todos", JSON.stringify([]));
-    } else {
-      // console.log("text", localStorage.getItem("todos"));
-      let todoLocal = JSON.parse(localStorage.getItem("todos"));
-      console.log("local:", todoLocal);
-      setTodos(todoLocal);
-      console.log("Todos:", todos);
+    let todoLocal = store.get("todos");
+    if(!todoLocal || !todoLocal.length) {
+      todoLocal = []
     }
+    setTodos(todoLocal);
   };
+
+  // Set on local and state
+  const onSetTodo = (todoItems) => {
+    setTodos(todoItems);
+    store.set("todos", todoItems);
+  }
 
   return (
     <div className="App">
@@ -60,12 +55,12 @@ function App() {
       <Form
         inputText={inputText}
         todos={todos}
-        setTodos={setTodos}
+        setTodos={onSetTodo}
         setInputText={setInputText}
         setStatus={setStatus}
       ></Form>
       <TodoList
-        setTodos={setTodos}
+        setTodos={onSetTodo}
         todos={todos}
         filteredTodos={filteredTodos}
       ></TodoList>
