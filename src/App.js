@@ -2,7 +2,6 @@ import "./App.css";
 import Form from "./components/Form";
 import TodoList from "./components/TodoList";
 import { useState, useEffect } from "react";
-import store from './localStore';
 
 function App() {
   const [inputText, setInputText] = useState("");
@@ -12,40 +11,48 @@ function App() {
 
   // Run Once when the app start
   useEffect(() => {
+    const getLocalTodos = () => {
+      if (localStorage.getItem("todos") === null) {
+        // console.log("Clear");
+        localStorage.setItem("todos", JSON.stringify([]));
+      } else {
+        let todoLocal = JSON.parse(localStorage.getItem("todos"));
+
+        setTodos(todoLocal);
+      }
+    };
+    // console.log("start");
     getLocalTodos();
   }, []);
 
-  const filterHandler = () => {
-    switch (status) {
-      case "completed":
-        setFilteredTodos(todos.filter((todo) => todo.completed));
-        break;
-      case "uncompleted":
-        setFilteredTodos(todos.filter((todo) => !todo.completed));
-        break;
-      default:
-        setFilteredTodos(todos);
-    }
-  };
-
-  // Update filtered list when change on status or todos item
   useEffect(() => {
-    filterHandler();
-  }, [todos, status]);
+    const filterHandler = () => {
+      switch (status) {
+        case "completed":
+          setFilteredTodos(todos.filter((todo) => todo.completed));
+          break;
+        case "uncompleted":
+          setFilteredTodos(todos.filter((todo) => !todo.completed));
+          break;
+        default:
+          setFilteredTodos(todos);
+      }
+    };
 
-  const getLocalTodos = () => {
-    let todoLocal = store.get("todos");
-    if(!todoLocal || !todoLocal.length) {
-      todoLocal = []
-    }
-    setTodos(todoLocal);
-  };
+    filterHandler();
+    // console.log("hey");
+  }, [todos, status]);
 
   // Set on local and state
   const onSetTodo = (todoItems) => {
+    const saveLocalTodos = () => {
+      console.log("Save");
+      localStorage.setItem("todos", JSON.stringify(todoItems));
+    };
+
     setTodos(todoItems);
-    store.set("todos", todoItems);
-  }
+    saveLocalTodos();
+  };
 
   return (
     <div className="App">
