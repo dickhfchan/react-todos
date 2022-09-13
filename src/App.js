@@ -16,11 +16,13 @@ function App() {
         // console.log("Clear");
         localStorage.setItem("todos", JSON.stringify([]));
       } else {
+        // console.log("text", localStorage.getItem("todos"));
         let todoLocal = JSON.parse(localStorage.getItem("todos"));
-
+        console.log("local:", todoLocal);
         setTodos(todoLocal);
       }
     };
+
     // console.log("start");
     getLocalTodos();
   }, []);
@@ -39,20 +41,17 @@ function App() {
       }
     };
 
-    filterHandler();
-    // console.log("hey");
-  }, [todos, status]);
-
-  // Set on local and state
-  const onSetTodo = (todoItems) => {
     const saveLocalTodos = () => {
-      console.log("Save");
-      localStorage.setItem("todos", JSON.stringify(todoItems));
+      // console.log("Save");
+      localStorage.setItem("todos", JSON.stringify(todos));
     };
 
-    setTodos(todoItems);
-    saveLocalTodos();
-  };
+    if (todos.length > 0) {
+      filterHandler();
+      saveLocalTodos();
+    }
+    // console.log("hey");
+  }, [todos, status]);
 
   return (
     <div className="App">
@@ -62,12 +61,12 @@ function App() {
       <Form
         inputText={inputText}
         todos={todos}
-        setTodos={onSetTodo}
+        setTodos={setTodos}
         setInputText={setInputText}
         setStatus={setStatus}
       ></Form>
       <TodoList
-        setTodos={onSetTodo}
+        setTodos={setTodos}
         todos={todos}
         filteredTodos={filteredTodos}
       ></TodoList>
